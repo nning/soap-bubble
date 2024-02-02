@@ -4,7 +4,6 @@ import (
 	"image/color"
 	"math/rand"
 	"os"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -15,7 +14,6 @@ type Game struct {
 	Winds   Winds
 	Paused  bool
 
-	someTime       int64
 	firstPosition  *Point
 	secondPosition *Point
 }
@@ -52,6 +50,16 @@ func (g *Game) Update() error {
 
 		g.firstPosition = nil
 		g.secondPosition = nil
+	}
+
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
+		x, y := ebiten.CursorPosition()
+
+		for _, bubble := range g.Bubbles {
+			if isPointInBubble(bubble, float32(x), float32(y)) {
+				bubble.Bursting = true
+			}
+		}
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
@@ -171,21 +179,15 @@ func (g *Game) CreateBubble() {
 		return
 	}
 
-	if g.someTime == 0 {
-		g.someTime = time.Now().Unix()
-	} else if time.Now().Unix()-g.someTime > 1 {
-		r := rand.Intn(50) + 50
+	r := rand.Intn(50) + 50
 
-		x := rand.Intn(pixelWidth-r) + r // TODO ensure bubble is not drawn outside of screen
-		y := rand.Intn(pixelHeight / 2)
+	x := rand.Intn(pixelWidth-r) + r // TODO ensure bubble is not drawn outside of screen
+	y := rand.Intn(pixelHeight / 2)
 
-		// x := pixelWidth / 2
-		// y := pixelHeight / 4
+	// x := pixelWidth / 2
+	// y := pixelHeight / 4
 
-		g.Bubbles = append(g.Bubbles, NewBubble(x, y, r))
-
-		g.someTime = 0
-	}
+	g.Bubbles = append(g.Bubbles, NewBubble(x, y, r))
 }
 
 func (g *Game) Reset() {
