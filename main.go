@@ -3,6 +3,7 @@ package main
 import (
 	"image/color"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 
@@ -42,11 +43,8 @@ func NewBubble(x, y, r int) *Bubble {
 }
 
 func (b *Bubble) Update() {
-	if b.LowerXBounds() >= pixelHeight {
-		b.bursting = true
-		if b.strokeWidth > 0 {
-			b.strokeWidth -= 0.125
-		}
+	if b.bursting && b.strokeWidth > 0 {
+		b.strokeWidth -= 0.2
 	}
 
 	b.y += b.speed
@@ -82,6 +80,8 @@ func (g *Game) Update() error {
 		g.bubbles = make(Bubbles, 0)
 	}
 
+	g.UpdateBurstings()
+
 	for _, bubble := range g.bubbles {
 		bubble.Update()
 
@@ -116,6 +116,37 @@ func (g *Game) RemoveBubble(bubble *Bubble) {
 	}
 
 	g.bubbles = append(g.bubbles[:k], g.bubbles[k+1:]...)
+}
+
+func (g *Game) UpdateBurstings() {
+	for _, bubble := range g.bubbles {
+		if bubble.LowerXBounds() >= pixelHeight {
+			bubble.bursting = true
+		}
+	}
+
+	if len(g.bubbles) > 1 {
+		if isBubbleCollision(g.bubbles[0], g.bubbles[1]) {
+			g.bubbles[0].bursting = true
+			g.bubbles[1].bursting = true
+		}
+	}
+
+	if len(g.bubbles) > 2 {
+		if isBubbleCollision(g.bubbles[1], g.bubbles[2]) {
+			g.bubbles[1].bursting = true
+			g.bubbles[2].bursting = true
+		}
+	}
+}
+
+func isBubbleCollision(a, b *Bubble) bool {
+	dx := float64(a.x - b.x)
+	dy := float64(a.y - b.y)
+	sr := float64(a.r + b.r)
+	d := math.Sqrt((dx * dx) + (dy * dy))
+
+	return d <= sr
 }
 
 func main() {
