@@ -159,6 +159,7 @@ func (g *Game) Reset() {
 
 	g.Winds = make(Winds, 0)
 	g.Winds = append(g.Winds, NewWind(564, 364, -1, -0.8, 1)) // 45° NW
+	g.Winds = append(g.Winds, NewWind(320, 91, 0, 1, 10))     // 90° S
 
 	g.Paused = false
 }
