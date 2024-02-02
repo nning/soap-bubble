@@ -3,41 +3,64 @@ package main
 import (
 	"image/color"
 	"log"
+	"math/rand"
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
+const maxBubbles = 3
+
 type Game struct {
-	pixels []Pixel
+	bubbles []*Bubble
 }
 
-type Pixel struct {
-	x, y  int
+type Bubble struct {
+	x, y  float32
+	r     float32
 	color color.RGBA
 }
 
+func (b *Bubble) Draw(screen *ebiten.Image) {
+	vector.StrokeCircle(screen, b.x, b.y, b.r, 0.7, color.Color(b.color), false)
+}
+
 func (g *Game) Update() error {
-	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+	if ebiten.IsKeyPressed(ebiten.KeyEscape) || ebiten.IsKeyPressed(ebiten.KeyQ) {
 		os.Exit(0)
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyF) || inpututil.IsKeyJustPressed(ebiten.KeyF11) {
 		ebiten.SetFullscreen(!ebiten.IsFullscreen())
 	}
 
-	// if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 
-		g.pixels = append(g.pixels, Pixel{
-			x:     x,
-			y:     y,
-			color: color.RGBA{255, 255, 255, 255},
-		})
+		if len(g.bubbles) < maxBubbles {
+			// rand int between 50 and 100
+			r := rand.Intn(50) + 50
 
-		// fmt.Println(g.pixels)
+			bubble := Bubble{
+				x:     float32(x),
+				y:     float32(y),
+				r:     float32(r),
+				color: color.RGBA{255, 255, 255, 255},
+			}
+
+			g.bubbles = append(g.bubbles, &bubble)
+		}
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
+		g.bubbles = make([]*Bubble, 0)
+	}
+
+	for _, bubble := range g.bubbles {
+		bubble.y += 0.5
+		// bubble.x = bubble.x + rand.Intn(3) - 1
 	}
 
 	return nil
@@ -46,8 +69,8 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{128, 128, 255, 0})
 
-	for _, pixel := range g.pixels {
-		screen.Set(pixel.x, pixel.y, pixel.color)
+	for _, bubble := range g.bubbles {
+		bubble.Draw(screen)
 	}
 }
 
@@ -60,7 +83,6 @@ func main() {
 
 	ebiten.SetWindowTitle("soap bubble")
 	ebiten.SetFullscreen(false)
-
 	ebiten.SetWindowSize(1920, 1080)
 
 	g := &Game{}
