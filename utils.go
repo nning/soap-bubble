@@ -1,6 +1,12 @@
 package main
 
-import "math"
+import (
+	"math"
+)
+
+type Point struct {
+	X, Y float32
+}
 
 func dist(x1, y1, x2, y2 float32) float32 {
 	dx := x2 - x1
@@ -10,7 +16,7 @@ func dist(x1, y1, x2, y2 float32) float32 {
 }
 
 func isPointInBubble(b *Bubble, x, y float32) bool {
-	return dist(b.x, b.y, x, y) <= b.r
+	return dist(b.X, b.Y, x, y) <= b.R
 }
 
 func isPointOnLine(x1, y1, x2, y2, x, y float32) bool {
@@ -25,26 +31,30 @@ func isPointOnLine(x1, y1, x2, y2, x, y float32) bool {
 
 // https://www.jeffreythompson.org/collision-detection/circle-circle.php
 func isBubbleCollision(a, b *Bubble) bool {
-	return dist(a.x, a.y, b.x, b.y) <= a.r+b.r
+	return dist(a.X, a.Y, b.X, b.Y) <= a.R+b.R
 }
 
 // https://www.jeffreythompson.org/collision-detection/line-circle.php
-func isWindCollision(b *Bubble, w *Wind) bool {
-	if isPointInBubble(b, w.x, w.y) || isPointInBubble(b, w.edgeX, w.edgeY) {
-		return true
+func isWindCollision(b *Bubble, w *Wind) (bool, *Point) {
+	if isPointInBubble(b, w.X, w.Y) || isPointInBubble(b, w.EdgeX, w.EdgeY) {
+		return true, nil
 	}
 
-	len := dist(w.x, w.y, w.edgeX, w.edgeY)
-	dot := (((b.x - w.x) * (w.edgeX - w.x)) + ((b.y - w.y) * (w.edgeY - w.y))) / (len * len)
+	len := dist(w.X, w.Y, w.EdgeX, w.EdgeY)
+	dot := (((b.X - w.X) * (w.EdgeX - w.X)) + ((b.Y - w.Y) * (w.EdgeY - w.Y))) / (len * len)
 
-	closestX := w.x + (dot * (w.edgeX - w.x))
-	closestY := w.y + (dot * (w.edgeY - w.y))
+	closestX := w.X + (dot * (w.EdgeX - w.X))
+	closestY := w.Y + (dot * (w.EdgeY - w.Y))
 
-	if !isPointOnLine(w.x, w.y, w.edgeX, w.edgeY, closestX, closestY) {
-		return false
+	if !isPointOnLine(w.X, w.Y, w.EdgeX, w.EdgeY, closestX, closestY) {
+		return false, nil
 	}
 
-	d := dist(closestX, closestY, b.x, b.y)
+	d := dist(closestX, closestY, b.X, b.Y)
 
-	return d <= b.r
+	if d <= b.R {
+		return true, &Point{closestX, closestY}
+	}
+
+	return false, nil
 }
