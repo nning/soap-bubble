@@ -63,11 +63,11 @@ func (g *Game) Update() error {
 	if len(g.Bubbles) < maxBubbles {
 		r := rand.Intn(50) + 50
 
-		// x := rand.Intn(pixelWidth-r) + r // TODO ensure bubble is not drawn outside of screen
-		// y := rand.Intn(pixelHeight / 2)
+		x := rand.Intn(pixelWidth-r) + r // TODO ensure bubble is not drawn outside of screen
+		y := rand.Intn(pixelHeight / 2)
 
-		x := pixelWidth / 2
-		y := pixelHeight / 4
+		// x := pixelWidth / 2
+		// y := pixelHeight / 4
 
 		g.Bubbles = append(g.Bubbles, NewBubble(x, y, r))
 	}
