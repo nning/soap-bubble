@@ -21,8 +21,11 @@ func main() {
 	ebiten.SetWindowSize(1920, 1080)
 
 	g := &Game{}
-	g.Winds = make(Winds, 0)
-	g.Winds = append(g.Winds, NewWind(564, 364, -1, -0.8, 1)) // 45° NW
+	if err := g.Load(); err != nil {
+		g.Reset()
+	}
+
+	go g.SavePeriodically()
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

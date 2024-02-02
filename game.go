@@ -5,7 +5,10 @@ import (
 	"image/color"
 	"math/rand"
 	"os"
+	"path/filepath"
+	"time"
 
+	"github.com/fxamacker/cbor/v2"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -33,8 +36,8 @@ func (g *Game) Update() error {
 		fmt.Println(ebiten.CursorPosition())
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-		g.Bubbles = make(Bubbles, 0)
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		g.Reset()
 	}
 
 	if g.Paused {
@@ -149,4 +152,67 @@ func (g *Game) UpdateBubbleWinds() {
 			// 		to it
 		}
 	}
+}
+
+func (g *Game) Reset() {
+	g.Bubbles = make(Bubbles, 0)
+
+	g.Winds = make(Winds, 0)
+	g.Winds = append(g.Winds, NewWind(564, 364, -1, -0.8, 1)) // 45° NW
+
+	g.Paused = false
+}
+
+func (g *Game) SavePeriodically() {
+	for {
+		time.Sleep(time.Second / 2)
+		g.Save()
+	}
+}
+
+func (g *Game) SavePath() (string, error) {
+	bin, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(filepath.Dir(bin), ".save"), nil
+}
+
+func (g *Game) Save() error {
+	b, err := cbor.Marshal(g)
+	if err != nil {
+		return err
+	}
+
+	path, err := g.SavePath()
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(path, b, 0600)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (g *Game) Load() error {
+	path, err := g.SavePath()
+	if err != nil {
+		return err
+	}
+
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	err = cbor.Unmarshal(b, g)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
