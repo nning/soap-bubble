@@ -54,6 +54,7 @@ func (g *Game) Update() error {
 	}
 
 	g.UpdateBurstings()
+	g.UpdateBubbleWinds()
 
 	for _, bubble := range g.bubbles {
 		bubble.Update()
@@ -95,6 +96,7 @@ func (g *Game) RemoveBubble(bubble *Bubble) {
 	g.bubbles = append(g.bubbles[:k], g.bubbles[k+1:]...)
 }
 
+// TODO calculate for all bubbles and in parallel
 func (g *Game) UpdateBurstings() {
 	for _, bubble := range g.bubbles {
 		if bubble.LowerXBounds() >= pixelHeight {
@@ -113,6 +115,16 @@ func (g *Game) UpdateBurstings() {
 		if isBubbleCollision(g.bubbles[1], g.bubbles[2]) {
 			g.bubbles[1].bursting = true
 			g.bubbles[2].bursting = true
+		}
+	}
+}
+
+func (g *Game) UpdateBubbleWinds() {
+	for _, bubble := range g.bubbles {
+		for _, wind := range g.winds {
+			if isWindCollision(bubble, wind) {
+				fmt.Println("wind collision")
+			}
 		}
 	}
 }

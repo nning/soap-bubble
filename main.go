@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -10,6 +11,7 @@ const pixelHeight = 540
 const pixelWidth = 960
 
 var maxBubbles = 1
+var pixelDiagonal = float32(math.Sqrt(pixelHeight*pixelHeight + pixelWidth*pixelWidth))
 
 func main() {
 	println("soap bubble started")
@@ -20,7 +22,7 @@ func main() {
 
 	g := &Game{}
 	g.winds = make(Winds, 0)
-	g.winds = append(g.winds, &Wind{x: 564, y: 364, angle: 130, speed: 50})
+	g.winds = append(g.winds, NewWind(564, 364, -1, -0.8, 1)) // 45° NW
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

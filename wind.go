@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -11,14 +10,22 @@ import (
 type Winds []*Wind
 
 type Wind struct {
-	x, y  float32
-	angle float32
-	speed float32
+	x, y         float32
+	vx, vy       float32
+	speed        float32
+	edgeX, edgeY float32
+}
+
+func NewWind(x, y, vx, vy, speed float32) *Wind {
+	edgeX := x + (pixelDiagonal * vx)
+	edgeY := y + (pixelDiagonal * vy)
+
+	return &Wind{x, y, vx, vy, speed, edgeX, edgeY}
 }
 
 func (w *Wind) Update() {
-	// w.x += w.speed * cos(w.angle)
-	// w.y += w.speed * sin(w.angle)
+	// w.edgeX = w.x + (pixelDiagonal * w.vx)
+	// w.edgeY = w.y + (pixelDiagonal * w.vy)
 }
 
 func (w *Wind) Draw(screen *ebiten.Image) {
@@ -26,8 +33,8 @@ func (w *Wind) Draw(screen *ebiten.Image) {
 		screen,
 		w.x,
 		w.y,
-		w.x+w.speed*float32(math.Cos(float64(w.angle))),
-		w.y+w.speed*float32(math.Sin(float64(w.angle))),
+		w.edgeX,
+		w.edgeY,
 		float32(1),
 		color.Color(color.RGBA{255, 0, 0, 255}),
 		false,
