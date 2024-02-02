@@ -11,8 +11,8 @@ type Winds []*Wind
 
 type Wind struct {
 	Point
+	Vector
 
-	VX, VY       float32
 	Speed        float32
 	EdgeX, EdgeY float32
 }
@@ -21,7 +21,7 @@ func NewWind(x, y, vx, vy, speed float32) *Wind {
 	edgeX := x + (pixelDiagonal * vx)
 	edgeY := y + (pixelDiagonal * vy)
 
-	return &Wind{Point{x, y}, vx, vy, speed, edgeX, edgeY}
+	return &Wind{Point{x, y}, Vector{vx, vy}, speed, edgeX, edgeY}
 }
 
 func (w *Wind) Update() {

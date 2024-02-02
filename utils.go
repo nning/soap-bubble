@@ -8,6 +8,10 @@ type Point struct {
 	X, Y float32
 }
 
+type Vector struct {
+	VX, VY float32
+}
+
 func dist(x1, y1, x2, y2 float32) float32 {
 	dx := x2 - x1
 	dy := y2 - y1
