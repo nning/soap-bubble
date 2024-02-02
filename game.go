@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"math/rand"
 	"os"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -13,10 +14,11 @@ type Game struct {
 	Bubbles Bubbles
 	Winds   Winds
 	Paused  bool
-}
 
-var firstPosition *Point
-var secondPosition *Point
+	someTime       int64
+	firstPosition  *Point
+	secondPosition *Point
+}
 
 func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) || ebiten.IsKeyPressed(ebiten.KeyQ) {
@@ -36,20 +38,20 @@ func (g *Game) Update() error {
 	// }
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		if firstPosition == nil {
+		if g.firstPosition == nil {
 			x, y := ebiten.CursorPosition()
-			firstPosition = &Point{float32(x), float32(y)}
+			g.firstPosition = &Point{float32(x), float32(y)}
 		}
 	}
 
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
-		secondPosition = &Point{float32(x), float32(y)}
+		g.secondPosition = &Point{float32(x), float32(y)}
 
-		g.AddWind(firstPosition, secondPosition)
+		g.AddWind(g.firstPosition, g.secondPosition)
 
-		firstPosition = nil
-		secondPosition = nil
+		g.firstPosition = nil
+		g.secondPosition = nil
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
@@ -60,17 +62,7 @@ func (g *Game) Update() error {
 		return nil
 	}
 
-	if len(g.Bubbles) < maxBubbles {
-		r := rand.Intn(50) + 50
-
-		x := rand.Intn(pixelWidth-r) + r // TODO ensure bubble is not drawn outside of screen
-		y := rand.Intn(pixelHeight / 2)
-
-		// x := pixelWidth / 2
-		// y := pixelHeight / 4
-
-		g.Bubbles = append(g.Bubbles, NewBubble(x, y, r))
-	}
+	g.CreateBubble()
 
 	g.UpdateBurstings()
 	g.UpdateBubbleWinds()
@@ -171,6 +163,28 @@ func (g *Game) UpdateBubbleWinds() {
 			//      a vector for the bubble's movement and add the wind vector
 			// 		to it
 		}
+	}
+}
+
+func (g *Game) CreateBubble() {
+	if len(g.Bubbles) >= maxBubbles {
+		return
+	}
+
+	if g.someTime == 0 {
+		g.someTime = time.Now().Unix()
+	} else if time.Now().Unix()-g.someTime > 1 {
+		r := rand.Intn(50) + 50
+
+		x := rand.Intn(pixelWidth-r) + r // TODO ensure bubble is not drawn outside of screen
+		y := rand.Intn(pixelHeight / 2)
+
+		// x := pixelWidth / 2
+		// y := pixelHeight / 4
+
+		g.Bubbles = append(g.Bubbles, NewBubble(x, y, r))
+
+		g.someTime = 0
 	}
 }
 
