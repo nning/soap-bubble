@@ -42,6 +42,18 @@ func (b *Bubble) Draw(screen *ebiten.Image) {
 	vector.StrokeCircle(screen, b.X, b.Y, b.R, b.StrokeWidth, color.Color(b.Color), false)
 }
 
-func (b *Bubble) LowerXBounds() float32 {
+func (b *Bubble) LowerEdge() float32 {
 	return b.Y + b.R + b.StrokeWidth
+}
+
+func (b *Bubble) UpperEdge() float32 {
+	return b.Y - b.R - b.StrokeWidth
+}
+
+func (b *Bubble) RightEdge() float32 {
+	return b.X + b.R + b.StrokeWidth
+}
+
+func (b *Bubble) LeftEdge() float32 {
+	return b.X - b.R - b.StrokeWidth
 }

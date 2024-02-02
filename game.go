@@ -1,14 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"math/rand"
 	"os"
-	"path/filepath"
-	"time"
 
-	"github.com/fxamacker/cbor/v2"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -18,6 +14,9 @@ type Game struct {
 	Winds   Winds
 	Paused  bool
 }
+
+var firstPosition *Point
+var secondPosition *Point
 
 func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) || ebiten.IsKeyPressed(ebiten.KeyQ) {
@@ -32,8 +31,25 @@ func (g *Game) Update() error {
 		g.Paused = !g.Paused
 	}
 
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		fmt.Println(ebiten.CursorPosition())
+	// if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+	// 	fmt.Println(ebiten.CursorPosition())
+	// }
+
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		if firstPosition == nil {
+			x, y := ebiten.CursorPosition()
+			firstPosition = &Point{float32(x), float32(y)}
+		}
+	}
+
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		x, y := ebiten.CursorPosition()
+		secondPosition = &Point{float32(x), float32(y)}
+
+		g.AddWind(firstPosition, secondPosition)
+
+		firstPosition = nil
+		secondPosition = nil
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
@@ -43,15 +59,6 @@ func (g *Game) Update() error {
 	if g.Paused {
 		return nil
 	}
-
-	// if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-	// 	x, y := ebiten.CursorPosition()
-
-	// 	if len(g.Bubbles) < maxBubbles {
-	// 		r := rand.Intn(50) + 50
-	// 		g.Bubbles = append(g.Bubbles, NewBubble(x, y, r))
-	// 	}
-	// }
 
 	if len(g.Bubbles) < maxBubbles {
 		r := rand.Intn(50) + 50
@@ -110,8 +117,21 @@ func (g *Game) RemoveBubble(bubble *Bubble) {
 
 // TODO calculate for all bubbles and in parallel
 func (g *Game) UpdateBurstings() {
+	// TODO calculate intersections with edges
 	for _, bubble := range g.Bubbles {
-		if bubble.LowerXBounds() >= pixelHeight {
+		if bubble.LowerEdge() >= pixelHeight {
+			bubble.Bursting = true
+		}
+
+		if bubble.UpperEdge() <= 0 {
+			bubble.Bursting = true
+		}
+
+		if bubble.RightEdge() >= pixelWidth {
+			bubble.Bursting = true
+		}
+
+		if bubble.LeftEdge() <= 0 {
 			bubble.Bursting = true
 		}
 	}
@@ -158,62 +178,22 @@ func (g *Game) Reset() {
 	g.Bubbles = make(Bubbles, 0)
 
 	g.Winds = make(Winds, 0)
-	g.Winds = append(g.Winds, NewWind(564, 364, -1, -0.8, 1)) // 45° NW
-	g.Winds = append(g.Winds, NewWind(320, 91, 0, 1, 10))     // 90° S
+	// g.Winds = append(g.Winds, NewWind(564, 364, -1, -0.8, 1)) // 45° NW
+	// g.Winds = append(g.Winds, NewWind(320, 91, 0, 1, 10))     // 90° S
 
 	g.Paused = false
 }
 
-func (g *Game) SavePeriodically() {
-	for {
-		time.Sleep(time.Second / 2)
-		g.Save()
-	}
-}
+func (g *Game) AddWind(a, b *Point) {
+	vx := b.X - a.X
+	vy := b.Y - a.Y
 
-func (g *Game) SavePath() (string, error) {
-	bin, err := os.Executable()
-	if err != nil {
-		return "", err
-	}
+	// calculate normal vector
+	norm := dist(vx, vy, 0, 0)
+	vx /= norm
+	vy /= norm
 
-	return filepath.Join(filepath.Dir(bin), ".save"), nil
-}
+	speed := dist(a.X, a.Y, b.X, b.Y) / 100
 
-func (g *Game) Save() error {
-	b, err := cbor.Marshal(g)
-	if err != nil {
-		return err
-	}
-
-	path, err := g.SavePath()
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(path, b, 0600)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (g *Game) Load() error {
-	path, err := g.SavePath()
-	if err != nil {
-		return err
-	}
-
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-
-	err = cbor.Unmarshal(b, g)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	g.Winds = append(g.Winds, NewWind(a.X, a.Y, vx, vy, speed))
 }
