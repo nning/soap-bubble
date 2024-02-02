@@ -81,12 +81,12 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{127, 127, 255, 0})
 
-	for _, bubble := range g.Bubbles {
-		bubble.Draw(screen)
-	}
-
 	for _, wind := range g.Winds {
 		wind.Draw(screen)
+	}
+
+	for _, bubble := range g.Bubbles {
+		bubble.Draw(screen)
 	}
 }
 
