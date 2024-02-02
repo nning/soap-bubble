@@ -37,7 +37,7 @@ func (w *Wind) Draw(screen *ebiten.Image) {
 		w.EdgeX,
 		w.EdgeY,
 		float32(1),
-		color.Color(color.RGBA{255, 0, 0, 255}),
+		color.Color(color.RGBA{143, 143, 255, 255}),
 		false,
 	)
 }
