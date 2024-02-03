@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"math/rand"
 	"os"
@@ -48,9 +49,11 @@ func (g *Game) Update() error {
 		g.Paused = !g.Paused
 	}
 
-	// if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-	// 	fmt.Println(ebiten.CursorPosition())
-	// }
+	if g.config.Debug {
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
+			fmt.Println(ebiten.CursorPosition())
+		}
+	}
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if g.firstPosition == nil {
