@@ -17,10 +17,25 @@ type Game struct {
 	firstPosition  *Point
 	secondPosition *Point
 
+	cursor *Cursor
 	config *Config
 }
 
+func NewGame(config *Config) *Game {
+	return &Game{
+		Bubbles: make(Bubbles, 0),
+		Winds:   make(Winds, 0),
+		Paused:  false,
+		cursor:  &Cursor{r: 5},
+		config:  config,
+	}
+}
+
 func (g *Game) Update() error {
+	if g.config.ShowCursor {
+		g.cursor.x, g.cursor.y = ebiten.CursorPosition()
+	}
+
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) || ebiten.IsKeyPressed(ebiten.KeyQ) {
 		os.Exit(0)
 	}
@@ -97,6 +112,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	for _, bubble := range g.Bubbles {
 		bubble.Draw(screen)
+	}
+
+	if g.config.ShowCursor {
+		g.cursor.Draw(screen)
 	}
 }
 

@@ -21,6 +21,7 @@ type Config struct {
 	MaxBubbles       int  `yaml:"maxBubbles"`
 	BubbleCollision  bool `yaml:"bubbleCollision"`
 	EdgeCollision    bool `yaml:"edgeCollision"`
+	ShowCursor       bool `yaml:"showCursor"`
 
 	path string
 }
@@ -82,6 +83,7 @@ func NewConfig() *Config {
 		MaxBubbles:       1,
 		BubbleCollision:  true,
 		EdgeCollision:    true,
+		ShowCursor:       true,
 
 		path: "config.yml",
 	}

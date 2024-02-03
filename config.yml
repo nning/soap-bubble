@@ -1,7 +1,8 @@
 # windowResolution: 1920x1080
 # pixelResolution: 960x540
-fullscreen: true
+# fullscreen: false
 # debug: true
-maxBubbles: 100
-bubbleCollision: false
+# maxBubbles: 1
+# bubbleCollision: true
 # edgeCollision: true
+# showCursor: true

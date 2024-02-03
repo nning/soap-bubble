@@ -22,7 +22,7 @@ func main() {
 	w := config.PixelWidth
 	pixelDiagonal = float32(math.Sqrt(float64(h*h + w*w)))
 
-	g := &Game{config: config}
+	g := NewGame(config)
 	if err := g.Load(); err != nil {
 		g.Reset()
 	}
