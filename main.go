@@ -23,11 +23,11 @@ func main() {
 	pixelDiagonal = float32(math.Sqrt(float64(h*h + w*w)))
 
 	g := NewGame(config)
-	if err := g.Load(); err != nil {
-		g.Reset()
-	}
 
-	go g.SavePeriodically()
+	if config.AutoSave {
+		g.Load()
+		go g.SavePeriodically()
+	}
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

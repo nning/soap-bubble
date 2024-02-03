@@ -22,6 +22,7 @@ type Config struct {
 	BubbleCollision  bool `yaml:"bubbleCollision"`
 	EdgeCollision    bool `yaml:"edgeCollision"`
 	ShowCursor       bool `yaml:"showCursor"`
+	AutoSave         bool `yaml:"autoSave"`
 
 	path string
 }
@@ -84,6 +85,7 @@ func NewConfig() *Config {
 		BubbleCollision:  true,
 		EdgeCollision:    true,
 		ShowCursor:       true,
+		AutoSave:         true,
 
 		path: "config.yml",
 	}
