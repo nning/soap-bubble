@@ -211,10 +211,7 @@ func (g *Game) CreateBubble() {
 
 func (g *Game) Reset() {
 	g.Bubbles = make(Bubbles, 0)
-
 	g.Winds = make(Winds, 0)
-	// g.Winds = append(g.Winds, NewWind(564, 364, -1, -0.8, 1)) // 45° NW
-	// g.Winds = append(g.Winds, NewWind(320, 91, 0, 1, 10))     // 90° S
 
 	g.Paused = false
 }
@@ -228,7 +225,7 @@ func (g *Game) AddWind(a, b *Point) {
 	vx /= norm
 	vy /= norm
 
-	speed := dist(a.X, a.Y, b.X, b.Y) / 100
+	speed := dist(a.X, a.Y, b.X, b.Y) * 0.00075
 
 	g.Winds = append(g.Winds, NewWind(a.X, a.Y, vx, vy, speed))
 }
@@ -244,7 +241,7 @@ func (g *Game) UpdateBubbles() {
 		bubble.X += bubble.VX
 		bubble.Y += bubble.VY
 
-		bubble.VX *= 0.1
-		bubble.VY *= 0.1
+		bubble.VX *= 0.9
+		bubble.VY *= 0.9
 	}
 }

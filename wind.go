@@ -25,8 +25,6 @@ func NewWind(x, y, vx, vy, speed float32) *Wind {
 }
 
 func (w *Wind) Update() {
-	// w.edgeX = w.x + (pixelDiagonal * w.vx)
-	// w.edgeY = w.y + (pixelDiagonal * w.vy)
 }
 
 func (w *Wind) Draw(screen *ebiten.Image) {

@@ -25,7 +25,7 @@ func NewBubble(x, y, r int) *Bubble {
 		Point:       Point{float32(x), float32(y)},
 		Vector:      Vector{0, 0},
 		R:           float32(r),
-		Speed:       float32(150-r) / 100,
+		Speed:       float32(150-r) * 0.001,
 		StrokeWidth: 0.7,
 		Color:       color.RGBA{255, 255, 255, 255},
 	}
