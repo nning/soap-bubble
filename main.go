@@ -7,20 +7,22 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const pixelHeight = 540
-const pixelWidth = 960
-
-var maxBubbles = 1
-var pixelDiagonal = float32(math.Sqrt(pixelHeight*pixelHeight + pixelWidth*pixelWidth))
+var pixelDiagonal = float32(0)
 
 func main() {
 	println("soap bubble started")
 
-	ebiten.SetWindowTitle("soap bubble")
-	ebiten.SetFullscreen(false)
-	ebiten.SetWindowSize(1920, 1080)
+	config := NewConfig().Load()
 
-	g := &Game{}
+	ebiten.SetWindowTitle("soap bubble")
+	ebiten.SetFullscreen(config.Fullscreen)
+	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
+
+	h := config.PixelHeight
+	w := config.PixelWidth
+	pixelDiagonal = float32(math.Sqrt(float64(h*h + w*w)))
+
+	g := &Game{config: config}
 	if err := g.Load(); err != nil {
 		g.Reset()
 	}

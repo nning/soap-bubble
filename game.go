@@ -16,6 +16,8 @@ type Game struct {
 
 	firstPosition  *Point
 	secondPosition *Point
+
+	config *Config
 }
 
 func (g *Game) Update() error {
@@ -99,7 +101,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return pixelWidth, pixelHeight
+	return g.config.PixelWidth, g.config.PixelHeight
 }
 
 func (g *Game) RemoveBubble(bubble *Bubble) {
@@ -117,35 +119,39 @@ func (g *Game) RemoveBubble(bubble *Bubble) {
 
 func (g *Game) UpdateBurstings() {
 	// TODO calculate intersections with edges?
-	for _, bubble := range g.Bubbles {
-		if bubble.LowerEdge() >= pixelHeight {
-			bubble.Bursting = true
-		}
+	if g.config.EdgeCollision {
+		for _, bubble := range g.Bubbles {
+			if bubble.LowerEdge() >= float32(g.config.PixelHeight) {
+				bubble.Bursting = true
+			}
 
-		if bubble.UpperEdge() <= 0 {
-			bubble.Bursting = true
-		}
+			if bubble.UpperEdge() <= 0 {
+				bubble.Bursting = true
+			}
 
-		if bubble.RightEdge() >= pixelWidth {
-			bubble.Bursting = true
-		}
+			if bubble.RightEdge() >= float32(g.config.PixelWidth) {
+				bubble.Bursting = true
+			}
 
-		if bubble.LeftEdge() <= 0 {
-			bubble.Bursting = true
-		}
-	}
-
-	pairs := make([][]*Bubble, 0)
-	for i, bubble := range g.Bubbles {
-		for j := i + 1; j < len(g.Bubbles); j++ {
-			pairs = append(pairs, []*Bubble{bubble, g.Bubbles[j]})
+			if bubble.LeftEdge() <= 0 {
+				bubble.Bursting = true
+			}
 		}
 	}
 
-	for _, pair := range pairs {
-		if isBubbleCollision(pair[0], pair[1]) {
-			pair[0].Bursting = true
-			pair[1].Bursting = true
+	if g.config.BubbleCollision {
+		pairs := make([][]*Bubble, 0)
+		for i, bubble := range g.Bubbles {
+			for j := i + 1; j < len(g.Bubbles); j++ {
+				pairs = append(pairs, []*Bubble{bubble, g.Bubbles[j]})
+			}
+		}
+
+		for _, pair := range pairs {
+			if isBubbleCollision(pair[0], pair[1]) {
+				pair[0].Bursting = true
+				pair[1].Bursting = true
+			}
 		}
 	}
 }
@@ -174,14 +180,14 @@ func (g *Game) UpdateBubbleWinds() {
 }
 
 func (g *Game) CreateBubble() {
-	if len(g.Bubbles) >= maxBubbles {
+	if len(g.Bubbles) >= g.config.MaxBubbles {
 		return
 	}
 
 	r := rand.Intn(50) + 50
 
-	x := rand.Intn(pixelWidth-r) + r // TODO ensure bubble is not drawn outside of screen
-	y := rand.Intn(pixelHeight / 2)
+	x := rand.Intn(g.config.PixelWidth-r) + r // TODO ensure bubble is not drawn outside of screen
+	y := rand.Intn(g.config.PixelHeight / 2)
 
 	// x := pixelWidth / 2
 	// y := pixelHeight / 4
