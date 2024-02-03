@@ -95,13 +95,7 @@ func (g *Game) Update() error {
 	g.UpdateBurstings()
 	g.UpdateBubbleWinds()
 
-	for _, bubble := range g.Bubbles {
-		bubble.Update()
-
-		if bubble.Bursting && bubble.StrokeWidth <= 0 {
-			g.RemoveBubble(bubble)
-		}
-	}
+	g.UpdateBubbles()
 
 	return nil
 }
@@ -186,13 +180,11 @@ func (g *Game) UpdateBubbleWinds() {
 				continue
 			}
 
-			// g.Paused = true
-
 			// wind strength based on where on wind line bubble collided
 			d := 1 - dist(collision.X, collision.Y, wind.X, wind.Y)/pixelDiagonal
 
-			bubble.X += wind.VX * wind.Speed * d
-			bubble.Y += wind.VY * wind.Speed * d
+			bubble.VX += wind.VX * wind.Speed * d
+			bubble.VY += wind.VY * wind.Speed * d
 
 			// TODO bubble falls right down after wind affection, we should have
 			//      a vector for the bubble's movement and add the wind vector
@@ -239,4 +231,20 @@ func (g *Game) AddWind(a, b *Point) {
 	speed := dist(a.X, a.Y, b.X, b.Y) / 100
 
 	g.Winds = append(g.Winds, NewWind(a.X, a.Y, vx, vy, speed))
+}
+
+func (g *Game) UpdateBubbles() {
+	for _, bubble := range g.Bubbles {
+		bubble.Update()
+
+		if bubble.Bursting && bubble.StrokeWidth <= 0 {
+			g.RemoveBubble(bubble)
+		}
+
+		bubble.X += bubble.VX
+		bubble.Y += bubble.VY
+
+		bubble.VX *= 0.1
+		bubble.VY *= 0.1
+	}
 }

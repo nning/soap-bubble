@@ -11,6 +11,7 @@ type Bubbles []*Bubble
 
 type Bubble struct {
 	Point
+	Vector
 
 	R           float32
 	Speed       float32
@@ -22,6 +23,7 @@ type Bubble struct {
 func NewBubble(x, y, r int) *Bubble {
 	return &Bubble{
 		Point:       Point{float32(x), float32(y)},
+		Vector:      Vector{0, 0},
 		R:           float32(r),
 		Speed:       float32(150-r) / 100,
 		StrokeWidth: 0.7,
@@ -35,7 +37,7 @@ func (b *Bubble) Update() {
 		b.R += 10
 	}
 
-	b.Y += b.Speed
+	b.VY += b.Speed // "Gravity"
 }
 
 func (b *Bubble) Draw(screen *ebiten.Image) {
