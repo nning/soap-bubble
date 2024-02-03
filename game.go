@@ -115,9 +115,8 @@ func (g *Game) RemoveBubble(bubble *Bubble) {
 	g.Bubbles = append(g.Bubbles[:k], g.Bubbles[k+1:]...)
 }
 
-// TODO calculate for all bubbles and in parallel
 func (g *Game) UpdateBurstings() {
-	// TODO calculate intersections with edges
+	// TODO calculate intersections with edges?
 	for _, bubble := range g.Bubbles {
 		if bubble.LowerEdge() >= pixelHeight {
 			bubble.Bursting = true
@@ -136,17 +135,17 @@ func (g *Game) UpdateBurstings() {
 		}
 	}
 
-	if len(g.Bubbles) > 1 {
-		if isBubbleCollision(g.Bubbles[0], g.Bubbles[1]) {
-			g.Bubbles[0].Bursting = true
-			g.Bubbles[1].Bursting = true
+	pairs := make([][]*Bubble, 0)
+	for i, bubble := range g.Bubbles {
+		for j := i + 1; j < len(g.Bubbles); j++ {
+			pairs = append(pairs, []*Bubble{bubble, g.Bubbles[j]})
 		}
 	}
 
-	if len(g.Bubbles) > 2 {
-		if isBubbleCollision(g.Bubbles[1], g.Bubbles[2]) {
-			g.Bubbles[1].Bursting = true
-			g.Bubbles[2].Bursting = true
+	for _, pair := range pairs {
+		if isBubbleCollision(pair[0], pair[1]) {
+			pair[0].Bursting = true
+			pair[1].Bursting = true
 		}
 	}
 }
